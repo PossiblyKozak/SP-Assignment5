@@ -1,0 +1,43 @@
+Name: HistoSystem
+Folders: DC, DP-1, DP-2
+Modular
+Comments
+Linux Directory Structure
+No Debugging print statements
+
+DC:
+Read the shared memory's circular buffer
+Buffer holds 265 characters (Value A -> T)
+Check for existance of shared memory
+if doesn't exist, sleep for 10 seconds and try again
+DC is launched by the CP-2 application
+DP-2 will pass the DP-1 processID and DP-2 processID on the command line
+Read the letters using the reading index
+Track the number of letters that it reads out of the buffer
+Wake up every 2 seconds (using SIGALARM) and read the buffer
+Prevent reading past the end
+Wrap back to the start once it hits the end
+every 10 seconds display a histogram of counts
+ones (-), tens(+), hundreds(*) (i.e. *+++-- = 132)
+If the DC recieves the SIGINIT, it will send it to its producers
+Read all data from the buffer, clear the screen, exit with "Shazam !!" string
+
+
+DP:
+
+ONLY DP-1: 
+Allocate shared memory for 256 characters and 2 read/write indicies
+check for existance of shared memory, if not there create it
+Launch DP-2, and only pass the sharedMemoryID
+
+ONLY DP-2:
+DP-2 needs to get the PID of itself and DP-1 (its parent) to launch the DC
+Launch DC THEN attach to the shared memory
+
+ALL:
+guard the writing to the memory through a semaphore
+DP-1 generate 20 random letters at one time
+DP-2 generate one random letter and sleep for 1/20th of a second
+listen for and handle the SIGINIT signal, immediately exiting once received
+wrap writes back to the zero index after 255
+if DP is slow, sleep and wait for it to catch up
